@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+<meta charset="UTF-8">
+<title>سایت آگهی ساده</title>
+<style>
+body{font-family:tahoma;direction:rtl;}
+input,textarea,button{display:block;width:100%;margin:5px 0;padding:8px;}
+.ad{border:1px solid #ccc;padding:10px;margin:10px 0;}
+.ad img{max-width:150px;}
+</style>
+</head>
+<body>
+<h1>ثبت آگهی</h1>
+<form id="adForm">
+<input type="text" name="title" placeholder="عنوان" required>
+<textarea name="description" placeholder="توضیحات" required></textarea>
+<input type="number" name="price" placeholder="قیمت" required>
+<input type="file" name="image">
+<button type="submit">ثبت</button>
+</form>
+
+<h2>لیست آگهی‌ها</h2>
+<div id="adsList"></div>
+
+<script>
+const form = document.getElementById('adForm');
+const adsList = document.getElementById('adsList');
+
+async function fetchAds() {
+  const res = await fetch('/api/ads');
+  const data = await res.json();
+  adsList.innerHTML = '';
+  data.forEach(ad => {
+    const div = document.createElement('div');
+    div.className = 'ad';
+    div.innerHTML = `<strong>${ad.title} - ${ad.price} تومان</strong><p>${ad.description}</p>` +
+                    (ad.image ? `<img src="${ad.image}">` : '');
+    adsList.appendChild(div);
+  });
+}
+
+form.addEventListener('submit', async e => {
+  e.preventDefault();
+  const formData = new FormData(form);
+  await fetch('/api/ads', { method:'POST', body: formData });
+  form.reset();
+  fetchAds();
+});
+
+fetchAds();
+</script>
+</body>
+</html>
